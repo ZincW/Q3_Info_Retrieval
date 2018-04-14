@@ -9,8 +9,9 @@ from nltk.corpus import stopwords
 from collections import Counter
 from sklearn.cross_validation import train_test_split
 import math
+import gensim
 
-import xgboost as xgb
+# import xgboost as xgb
 
 pal = sns.color_palette()
 
@@ -41,8 +42,16 @@ def word_match_share(row):
         R=0
     return R
 
-
 train_word_match = df_train.apply(word_match_share, axis=1, raw=True)
+
+def jaccard_word_match_share(row):
+    wic = set(str(row['question1'])).intersection(set(str(row['question2'])))
+    uw = set(str(row['question1'])).union(str(row['question2']))
+    if len(uw) == 0:
+        uw = [1]
+    return (len(wic) / len(uw))
+
+jaccard_train_word_match = df_train.apply(jaccard_word_match_share, axis=1, raw=True)
 
 def get_weight(count, eps=10000, min_count=2):
     if count < min_count:
@@ -85,10 +94,12 @@ x_train['qid1'] = df_train['qid1']
 x_train['qid2'] = df_train['qid2']
 x_train['word_match'] = train_word_match
 x_train['tfidf_word_match'] = tfidf_train_word_match
+x_train['jaccard_word_match'] = jaccard_train_word_match
 x_test['qid1'] = df_test['test_id']*2+1
 x_test['qid2'] = df_test['test_id']*2+2
 x_test['word_match'] = df_test.apply(word_match_share, axis=1, raw=True)
 x_test['tfidf_word_match'] = df_test.apply(tfidf_word_match_share, axis=1, raw=True)
+x_test['jaccard_word_match'] = df_test.apply(jaccard_word_match_share, axis=1, raw=True)
 
 y_train = df_train['is_duplicate'].values
 
