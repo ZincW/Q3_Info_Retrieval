@@ -14,7 +14,7 @@ from gensim import corpora, models
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem.porter import PorterStemmer
 
-# import xgboost as xgb
+import xgboost as xgb
 
 pal = sns.color_palette()
 
