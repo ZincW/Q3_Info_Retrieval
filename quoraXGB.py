@@ -10,8 +10,11 @@ from collections import Counter
 from sklearn.cross_validation import train_test_split
 import math
 import gensim
+from gensim import corpora, models
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem.porter import PorterStemmer
 
-import xgboost as xgb
+# import xgboost as xgb
 
 pal = sns.color_palette()
 
@@ -87,6 +90,41 @@ def tfidf_word_match_share(row):
 
 tfidf_train_word_match = df_train.apply(tfidf_word_match_share, axis=1, raw=True)
 
+tokenizer = RegexpTokenizer(r'\w+')
+
+# Create p_stemmer of class PorterStemmer
+p_stemmer = PorterStemmer()
+
+# list for tokenized documents in loop
+texts = []
+
+def LDA(row):
+    # clean and tokenize document string
+    Q1raw = str(row['question1']).lower().split()
+    Q2raw = str(row['question2']).lower().split()
+
+    tokens = Q1raw + Q2raw
+    # remove stop words from tokens
+    stopped_tokens = [i for i in tokens if i not in stops]
+    # stem tokens
+    stemmed_tokens = [p_stemmer.stem(i) for i in stopped_tokens]
+    # add tokens to list
+    texts.append(stemmed_tokens)
+
+LDA_data = df_train.apply(LDA, axis=1, raw=True)
+
+# turn our tokenized documents into a id <-> term dictionary
+dictionary = corpora.Dictionary(texts)
+
+# convert tokenized documents into a document-term matrix
+corpus = [dictionary.doc2bow(text) for text in texts]
+
+# Creating the object for LDA model using gensim library
+Lda = gensim.models.ldamodel.LdaModel
+
+# generate LDA model
+ldamodel = Lda(corpus, num_topics=2, id2word=dictionary, passes=20)
+
 # First we create our training and testing data
 x_train = pd.DataFrame()
 x_test = pd.DataFrame()
@@ -95,11 +133,13 @@ x_train['qid2'] = df_train['qid2']
 x_train['word_match'] = train_word_match
 x_train['tfidf_word_match'] = tfidf_train_word_match
 x_train['jaccard_word_match'] = jaccard_train_word_match
+x_train['LDA_data'] = LDA_data
 x_test['qid1'] = df_test['test_id']*2+1
 x_test['qid2'] = df_test['test_id']*2+2
 x_test['word_match'] = df_test.apply(word_match_share, axis=1, raw=True)
 x_test['tfidf_word_match'] = df_test.apply(tfidf_word_match_share, axis=1, raw=True)
 x_test['jaccard_word_match'] = df_test.apply(jaccard_word_match_share, axis=1, raw=True)
+x_test['LDA'] = df_train.apply(LDA, axis=1, raw=True)
 
 y_train = df_train['is_duplicate'].values
 
