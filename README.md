@@ -20,3 +20,5 @@ References:
 8. Gradient (Tree) Boosting: https://en.wikipedia.org/wiki/Gradient_boosting
 
 9. Jaccard index: https://en.wikipedia.org/wiki/Jaccard_index
+
+10. LDA: https://rstudio-pubs-static.s3.amazonaws.com/79360_850b2a69980c4488b1db95987a24867a.html#tokenization
