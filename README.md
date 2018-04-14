@@ -18,3 +18,5 @@ References:
 7. Decision Tree Algorithms: http://dataaspirant.com/2017/01/30/how-decision-tree-algorithm-works/
 
 8. Gradient (Tree) Boosting: https://en.wikipedia.org/wiki/Gradient_boosting
+
+9. Jaccard index: https://en.wikipedia.org/wiki/Jaccard_index
