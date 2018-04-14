@@ -11,7 +11,7 @@ from sklearn.cross_validation import train_test_split
 import math
 import gensim
 
-# import xgboost as xgb
+import xgboost as xgb
 
 pal = sns.color_palette()
 
